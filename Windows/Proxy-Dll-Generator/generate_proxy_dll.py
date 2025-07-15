@@ -34,6 +34,7 @@ def compile_dll(c_file, def_file, output_path):
         "-shared",
         "-o", output_path,
         c_file,
+        "-lkernel32",
         "-Wl,--output-def," + def_file
     ]
     print("⚙️  Compiling with:", ' '.join(cmd))
@@ -67,7 +68,7 @@ def main():
 
     base_name = os.path.splitext(os.path.basename(source_dll))[0]
     def_path = os.path.join(build_dir, f"{base_name}.def")
-    c_stub_path = os.path.join(build_dir, f"{base_name}_stub.c")
+    c_stub_path = os.path.join(build_dir, f"templates","stub_template.c")
 
     print("📦 Extracting exports...")
     exports = extract_exports(source_dll)
