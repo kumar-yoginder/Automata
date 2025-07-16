@@ -4,6 +4,8 @@
 ### C ###
 # Prerequisites
 *.d
+*.def
+*.c
 
 # Object files
 *.o

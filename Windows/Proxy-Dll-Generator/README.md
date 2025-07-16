@@ -1,107 +1,47 @@
-# 🥪 Dynamic Proxy DLL Generator
+# Proxy DLL Generator
 
-This tool automates the creation of **proxy DLLs** that intercept and forward calls to an original DLL while performing custom logging. It's ideal for reverse engineering, red teaming, security testing, or instrumentation of native Windows DLLs.
+## Purpose
 
-Built with:
+This script automates the creation of proxy DLLs for Windows. It extracts all exported functions from a target DLL, generates C stubs that log calls to each export, and builds a new DLL that proxies calls to the original. Optionally, it can swap the original DLL with the proxy, backing up the original.
 
-* `pefile` (Python) for PE export parsing
-* `gcc` (MinGW) for compiling the proxy
-* PowerShell and Python for automation
+## Requirements
 
----
+- Python packages:  
+  - `pefile`
+  - `psutil`
+- Windows build tools:  
+  - `gcc` (MinGW or similar, available in PATH)
 
-## ⚙️ Features
-
-* ✅ Parses all exported functions from the original DLL (by name and ordinal)
-* ✅ Automatically generates a `.def` file for forwarding
-* ✅ Creates a proxy stub with malicious-style logging
-* ✅ Compiles a working proxy DLL using GCC (MinGW)
-* ✅ Optionally replaces the original DLL with the proxy (backup created)
-* ✅ Fully scriptable via `argparse` interface
-
----
-
-## 📦 Requirements
-
-* Python 3.7+
-* MinGW with `gcc` in `PATH`
-* Python dependencies:
-
-```bash
-pip install -r requirements.txt
+Install Python dependencies with:
+```
+pip install pefile psutil
 ```
 
----
-
-## 🚀 Usage
-
-```bash
-python generate_proxy_dll.py --source <original.dll> --dest <output\ProxyDll.dll> [--swap]
-```
-
-### 🔧 Arguments
-
-| Flag       | Description                                  |
-| ---------- | -------------------------------------------- |
-| `--source` | Path to the original DLL to proxy            |
-| `--dest`   | Path where the proxy DLL will be generated   |
-| `--swap`   | (Optional) If set, replaces the original DLL |
-
----
-
-## 🧪 Example
-
-### ✅ Generate a proxy DLL
-
-```bash
-python generate_proxy_dll.py --source examples/RealDll.dll --dest build/ProxyDll.dll
-```
-
-### ↺ Generate and swap with original
-
-```bash
-python generate_proxy_dll.py --source C:\MyApp\RealDll.dll --dest build\ProxyDll.dll --swap
-```
-
-This will:
-
-* Backup `RealDll.dll` to `RealDll.dll.backup`
-* Replace it with `ProxyDll.dll`
-
----
-
-## 📂 Project Structure
+## Usage
 
 ```
-proxy-dll-generator/
-├── generate_proxy_dll.py      # Main automation script
-├── requirements.txt           # Python dependencies
-├── templates/
-│   └── stub_template.c        # C logging stub template (optional)
-├── build/                     # Output: .dll, .def, .c files
-├── examples/
-│   └── RealDll.dll            # Test DLL (you provide)
-└── README.md
+python generate_proxy_dll.py --source <original.dll> --dest <proxy.dll> [--swap]
 ```
----
 
-## 📜 Logging Behavior
+- `--source`: Path to the original DLL to proxy.
+- `--dest`: Output path for the generated proxy DLL.
+- `--swap`: (Optional) Replace the original DLL with the proxy and back up the original.
 
-The proxy logs the following to a temp file:
+**Example:**
+```
+python generate_proxy_dll.py --source C:\Windows\System32\example.dll --dest C:\temp\example_proxy.dll --swap
+```
 
-* User name
-* Current working directory
-* Process ID and Parent PID
-* Timestamp
-* Custom log ID per call
+## Workflow
 
-📋 Log file: `%TEMP%\[yoginder_kumar].log`
-
----
-
-## ⚠️ Disclaimer
-
-This tool is intended for **educational, security research, and authorized testing purposes** only.
-**Do not use** this tool in environments or systems without proper legal authorization.
+1. Extracts all exported functions from the source DLL.
+2. Generates a C file with logging stubs for each export.
+3. Writes a module definition (`.def`) file for exports.
+4. Compiles the proxy DLL using `gcc`.
+5. (Optional) Swaps the original DLL with the proxy, backing up the original.
 
 ---
+
+**Note:**  
+- This script is intended for research and educational purposes.  
+- Administrative privileges may be required for DLL operations.
